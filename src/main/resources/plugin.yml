@@ -1,0 +1,5 @@
+name: enderland-oneblock
+version: '${project.version}'
+main: de.felixstaude.oneblock.main.OneBlock_Main
+api-version: 1.20
+load: STARTUP
