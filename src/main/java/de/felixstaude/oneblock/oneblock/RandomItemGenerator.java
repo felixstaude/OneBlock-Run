@@ -1,11 +1,13 @@
 package de.felixstaude.oneblock.oneblock;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class RandomItemGenerator {
     private static final List<Material> ITEM_MATERIALS = new ArrayList<>();
@@ -30,10 +32,19 @@ public class RandomItemGenerator {
         }
     }
 
-    public static ItemStack getRandomItemStack() {
+    private static ItemStack getRandomItemStack() {
         Material randomMaterial = ITEM_MATERIALS.get(RANDOM.nextInt(ITEM_MATERIALS.size()));
         System.out.println(randomMaterial.toString());
         return new ItemStack(randomMaterial);
+    }
 
+    public static void dropRandomItemStack(){
+        for (Map.Entry<UUID, Location> entry : PlayerJoinQuitHandler.blockLocation.entrySet()){
+            UUID uuid = entry.getKey();
+            Location location = entry.getValue();
+
+            Item droppedItem = location.getWorld().dropItemNaturally(location.add(0,1,0), getRandomItemStack());
+            droppedItem.setVelocity(new Vector(0, 0 ,0));
+        }
     }
 }

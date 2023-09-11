@@ -1,5 +1,7 @@
 package de.felixstaude.oneblock.oneblock;
 
+import de.felixstaude.oneblock.gamemanager.GameManager;
+import de.felixstaude.oneblock.gamemanager.GameState;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,29 +15,66 @@ import java.util.UUID;
 
 public class PlayerJoinQuitHandler implements Listener {
 
-    private final LinkedHashMap<UUID, Location> blockLocation = new LinkedHashMap<UUID, Location>();
+    private final int requiredPlayers = 2;
+    public static final LinkedHashMap<UUID, Location> blockLocation = new LinkedHashMap<UUID, Location>();
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event){
         UUID uuid = event.getPlayer().getUniqueId();
-        if(!blockLocation.containsKey(uuid)){
-            addNewLocation(uuid);
+        if(GameManager.isState(GameState.LOBBY) || GameManager.isState(GameState.START_GAME)){
+            if(!blockLocation.containsKey(uuid)){
+                addNewLocation(uuid);
+            }
+            setBlock(uuid, true);
         }
-        setBlock(uuid, true);
         Location teleportLoc = getBlockLocation(uuid).clone().add(0.5, 1, 0.5);
         event.getPlayer().teleport(teleportLoc);
+
+        // sets the game state
+        System.out.println(Bukkit.getServer().getOnlinePlayers().toArray().length);
+        if(Bukkit.getOnlinePlayers().size() >= requiredPlayers && GameManager.isState(GameState.LOBBY)){
+            GameManager.startGame();
+        }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
         UUID uuid = event.getPlayer().getUniqueId();
-        if(blockLocation.containsKey(uuid)){
-            setBlock(uuid, false);
-            removeLocation(uuid);
+        if(GameManager.isState(GameState.LOBBY) || GameManager.isState(GameState.START_GAME)){
+            if(blockLocation.containsKey(uuid)){
+                setBlock(uuid, false);
+                removeLocation(uuid);
+            }
+        }
+
+        // sets the game state
+        System.out.println(Bukkit.getServer().getOnlinePlayers().toArray().length);
+        if(Bukkit.getOnlinePlayers().size() <= requiredPlayers && GameManager.isState(GameState.START_GAME)){
+            GameManager.stopGameStart();
+        }
+
+    }
+
+    // set the block under the players spawn location
+    private void setBlock(UUID uuid, Boolean bool){
+        Location blockLoc = getBlockLocation(uuid);
+
+        if (blockLoc == null) {return;}
+
+        blockLoc = blockLoc.clone();
+        blockLoc.setY(blockLoc.getY() -2);
+
+        // true = place bedrock block
+        // false = break bedrock block
+        if(bool){
+            blockLoc.getBlock().setType(Material.BEDROCK);
+        } else {
+            blockLoc.getBlock().breakNaturally();
         }
     }
 
-    public void addNewLocation(UUID uuid) {
+    // add the new spawn location of the player
+    private void addNewLocation(UUID uuid) {
         if (!blockLocation.containsKey(uuid)) {
             Location freieLoc = findFreeLocation();
             System.out.println("free location for " + uuid + ": " + freieLoc); // Debug-Ausgabe
@@ -44,15 +83,18 @@ public class PlayerJoinQuitHandler implements Listener {
         System.out.println("Updated blockLocation map: " + blockLocation);
     }
 
-    public void removeLocation(UUID uuid){
+    // remove the spawn location of the player
+    private void removeLocation(UUID uuid){
         blockLocation.remove(uuid);
         setBlock(uuid, false);
     }
 
-    public Location getBlockLocation(UUID uuid){
+    // get the spawn location of the player
+    public static Location getBlockLocation(UUID uuid){
         return blockLocation.get(uuid);
     }
 
+    // find a free location to set a new spawn location
     private Location findFreeLocation() {
         Location startLoc = new Location(Bukkit.getWorld("world"), 0, 125, 0);
         Location currentLoc = startLoc.clone();
@@ -65,23 +107,7 @@ public class PlayerJoinQuitHandler implements Listener {
         return currentLoc;
     }
 
-    // true = place block
-    // false = remove block
-    private void setBlock(UUID uuid, Boolean bool){
-        Location blockLoc = getBlockLocation(uuid);
-
-        if (blockLoc == null) {return;}
-
-        blockLoc = blockLoc.clone();
-        blockLoc.setY(blockLoc.getY() -2);
-
-        if(bool){
-            blockLoc.getBlock().setType(Material.BEDROCK);
-        } else {
-            blockLoc.getBlock().breakNaturally();
-        }
-    }
-
+    // checks to see if a location already exists
     private boolean locationExists(Location location) {
         for (Location loc : blockLocation.values()) {
             if (loc.getBlockX() == location.getBlockX() && loc.getBlockY() == location.getBlockY() && loc.getBlockZ() == location.getBlockZ()) {
@@ -90,5 +116,7 @@ public class PlayerJoinQuitHandler implements Listener {
         }
         return false;
     }
+
+    public boolean isPlayerOnList(UUID uuid){return (blockLocation.containsKey(uuid));}
 
 }
