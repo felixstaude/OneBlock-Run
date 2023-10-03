@@ -1,12 +1,8 @@
 package de.felixstaude.oneblock.gamemanager;
 
 import de.felixstaude.oneblock.main.OneBlock_Main;
-import de.felixstaude.oneblock.oneblock.RandomItemGenerator;
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-
-import java.util.logging.Level;
 
 public class GameManager{
     private static int countStartGame;
@@ -38,6 +34,8 @@ public class GameManager{
 
     public static void setInGameState(){
         setCurrentState(GameState.IN_GAME);
+        GameTimer timer = new GameTimer();
+        timer.start();
         taskInGame = new BukkitRunnable(){
 
             @Override
@@ -48,9 +46,9 @@ public class GameManager{
                     taskInGame.cancel();
                     countInGame = 0;
                     cancelInGame = false;
-                } else if (countInGame > 10 || countInGame == 0) {
-                    System.out.println(countInGame);
-                    RandomItemGenerator.dropRandomItemStack();
+                }
+                if (countInGame > 10 || countInGame == 0) {
+                    //RandomItemGenerator.dropRandomItemStack();
                     taskStartGame.cancel();
                     countInGame = 0;
                     cancelInGame = false;
@@ -65,37 +63,36 @@ public class GameManager{
         setCurrentState(GameState.AFTER_GAME);
     }
 
-    public static void setGameStartState(){
+/*    public static void setGameStartState(){
         setCurrentState(GameState.START_GAME);
     }
-
+*/
     public static void startGame(){
         setCurrentState(GameState.START_GAME);
         taskStartGame = new BukkitRunnable() {
             @Override
             public void run() {
+                if(!getCurrentState().equals(GameState.START_GAME)) return;
                 countStartGame += 1;
+                System.out.println(countStartGame);
                 if(cancelStartGame){
                     taskStartGame.cancel();
                     countStartGame = 0;
                     cancelStartGame = false;
                     return;
-                } else if (countStartGame > 10 || countStartGame == 0) {
+                }
+                if (countStartGame > 10 || countStartGame == 0) {
                     setInGameState();
-                    Bukkit.broadcastMessage("start game");
                     taskStartGame.cancel();
                     countStartGame = 0;
                     cancelStartGame = false;
-                    return;
                 }
-                Bukkit.broadcastMessage("Seconds passed: " + countStartGame + "!");
             }
         }.runTaskTimer(OneBlock_Main.getProvidingPlugin(OneBlock_Main.class), 0, 20);
     }
 
     public static void stopGameStart(){
         cancelStartGame = true;
-        Bukkit.broadcastMessage("cancle bing bong");
         setLobbyState();
     }
 }

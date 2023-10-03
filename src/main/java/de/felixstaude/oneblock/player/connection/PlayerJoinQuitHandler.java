@@ -1,10 +1,12 @@
-package de.felixstaude.oneblock.oneblock;
+package de.felixstaude.oneblock.player.connection;
 
 import de.felixstaude.oneblock.gamemanager.GameManager;
 import de.felixstaude.oneblock.gamemanager.GameState;
+import de.felixstaude.oneblock.block.barrier.BarrierManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -15,7 +17,7 @@ import java.util.UUID;
 
 public class PlayerJoinQuitHandler implements Listener {
 
-    private final int requiredPlayers = 2;
+    private final int requiredPlayers = 3;
     public static final LinkedHashMap<UUID, Location> blockLocation = new LinkedHashMap<UUID, Location>();
 
     @EventHandler
@@ -27,11 +29,11 @@ public class PlayerJoinQuitHandler implements Listener {
             }
             setBlock(uuid, true);
         }
+        new BarrierManager().createBarrierBox(event.getPlayer());
         Location teleportLoc = getBlockLocation(uuid).clone().add(0.5, 1, 0.5);
         event.getPlayer().teleport(teleportLoc);
 
         // sets the game state
-        System.out.println(Bukkit.getServer().getOnlinePlayers().toArray().length);
         if(Bukkit.getOnlinePlayers().size() >= requiredPlayers && GameManager.isState(GameState.LOBBY)){
             GameManager.startGame();
         }
@@ -43,12 +45,12 @@ public class PlayerJoinQuitHandler implements Listener {
         if(GameManager.isState(GameState.LOBBY) || GameManager.isState(GameState.START_GAME)){
             if(blockLocation.containsKey(uuid)){
                 setBlock(uuid, false);
+                new BarrierManager().removeBarrierBox(event.getPlayer());
                 removeLocation(uuid);
             }
         }
 
         // sets the game state
-        System.out.println(Bukkit.getServer().getOnlinePlayers().toArray().length);
         if(Bukkit.getOnlinePlayers().size() <= requiredPlayers && GameManager.isState(GameState.START_GAME)){
             GameManager.stopGameStart();
         }
@@ -77,10 +79,8 @@ public class PlayerJoinQuitHandler implements Listener {
     private void addNewLocation(UUID uuid) {
         if (!blockLocation.containsKey(uuid)) {
             Location freieLoc = findFreeLocation();
-            System.out.println("free location for " + uuid + ": " + freieLoc); // Debug-Ausgabe
             blockLocation.put(uuid, freieLoc);
         }
-        System.out.println("Updated blockLocation map: " + blockLocation);
     }
 
     // remove the spawn location of the player
@@ -96,13 +96,12 @@ public class PlayerJoinQuitHandler implements Listener {
 
     // find a free location to set a new spawn location
     private Location findFreeLocation() {
-        Location startLoc = new Location(Bukkit.getWorld("world"), 0, 125, 0);
+        Location startLoc = new Location(Bukkit.getWorld("voidworld"), 0, 125, 0);
         Location currentLoc = startLoc.clone();
         int step = 10;
 
         while(locationExists(currentLoc)) {
             currentLoc.add(step, 0, 0);
-            System.out.println("Current location after update: " + currentLoc);
         }
         return currentLoc;
     }

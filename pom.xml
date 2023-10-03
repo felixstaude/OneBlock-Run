@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.felixstaude</groupId>
-    <artifactId>enderland-oneblock</artifactId>
+    <artifactId>oneblock-run</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 

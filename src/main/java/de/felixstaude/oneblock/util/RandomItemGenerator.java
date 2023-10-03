@@ -1,9 +1,9 @@
-package de.felixstaude.oneblock.oneblock;
+package de.felixstaude.oneblock.util;
 
+import de.felixstaude.oneblock.player.connection.PlayerJoinQuitHandler;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -40,9 +40,7 @@ public class RandomItemGenerator {
 
     public static void dropRandomItemStack(){
         for (Map.Entry<UUID, Location> entry : PlayerJoinQuitHandler.blockLocation.entrySet()){
-            UUID uuid = entry.getKey();
             Location location = entry.getValue();
-
             Item droppedItem = location.getWorld().dropItemNaturally(location.add(0,1,0), getRandomItemStack());
             droppedItem.setVelocity(new Vector(0, 0 ,0));
         }

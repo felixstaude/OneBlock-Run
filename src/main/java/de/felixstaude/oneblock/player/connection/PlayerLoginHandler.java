@@ -1,8 +1,7 @@
-package de.felixstaude.oneblock.oneblock;
+package de.felixstaude.oneblock.player.connection;
 
 import de.felixstaude.oneblock.gamemanager.GameManager;
 import de.felixstaude.oneblock.gamemanager.GameState;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;

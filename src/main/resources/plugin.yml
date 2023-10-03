@@ -1,4 +1,4 @@
-name: enderland-oneblock
+name: oneblock-run
 version: '${project.version}'
 main: de.felixstaude.oneblock.main.OneBlock_Main
 api-version: 1.20
