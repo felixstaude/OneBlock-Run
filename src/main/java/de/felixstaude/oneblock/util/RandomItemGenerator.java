@@ -34,7 +34,6 @@ public class RandomItemGenerator {
 
     private static ItemStack getRandomItemStack() {
         Material randomMaterial = ITEM_MATERIALS.get(RANDOM.nextInt(ITEM_MATERIALS.size()));
-        System.out.println(randomMaterial.toString());
         return new ItemStack(randomMaterial);
     }
 

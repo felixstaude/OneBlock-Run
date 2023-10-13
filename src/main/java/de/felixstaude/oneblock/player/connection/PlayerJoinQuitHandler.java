@@ -3,10 +3,10 @@ package de.felixstaude.oneblock.player.connection;
 import de.felixstaude.oneblock.gamemanager.GameManager;
 import de.felixstaude.oneblock.gamemanager.GameState;
 import de.felixstaude.oneblock.block.barrier.BarrierManager;
+import de.felixstaude.oneblock.main.OneBlock_Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -24,6 +24,7 @@ public class PlayerJoinQuitHandler implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event){
         UUID uuid = event.getPlayer().getUniqueId();
         if(GameManager.isState(GameState.LOBBY) || GameManager.isState(GameState.START_GAME)){
+            event.getPlayer().getInventory().clear();
             if(!blockLocation.containsKey(uuid)){
                 addNewLocation(uuid);
             }
@@ -117,5 +118,4 @@ public class PlayerJoinQuitHandler implements Listener {
     }
 
     public boolean isPlayerOnList(UUID uuid){return (blockLocation.containsKey(uuid));}
-
 }

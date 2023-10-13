@@ -25,8 +25,15 @@ public class BlockCounter implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        // Ignore cancelled events and non-gameplay states.
-        if(event.isCancelled() || !GameManager.isState(GameState.IN_GAME)) return;
+        // Ignore cancelled events and non-gameplay states and cancel the block place event
+        if(event.isCancelled() || !GameManager.isState(GameState.IN_GAME)){
+            if(!event.getPlayer().isOp()){
+                event.setCancelled(true);
+                return;
+            }
+            event.setCancelled(false);
+            return;
+        }
 
         Player player = event.getPlayer();
         UUID playerId = player.getUniqueId();
