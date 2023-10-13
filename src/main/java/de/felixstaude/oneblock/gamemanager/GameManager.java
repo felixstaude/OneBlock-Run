@@ -21,9 +21,9 @@ public class GameManager{
     }
     private static int countStartGame;
     private static int countInGame;
-    private static int dropItemTimer = 5;
-    private static int startGameTimer = 5;
-    private static int gameTimer = 30;
+    private static int dropItemTimer = 30;
+    private static int startGameTimer = 30;
+    private static int gameTimer = 3600; // 3600 -> one hour game time
     private static boolean cancelStartGame = false;
     private static boolean isGameCanceled = false;
     private static GameState currentState = GameState.LOBBY;
