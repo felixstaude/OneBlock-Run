@@ -1,37 +1,43 @@
 package de.felixstaude.oneblock.block.barrier;
 
+import de.felixstaude.oneblock.block.BlockCounter;
 import de.felixstaude.oneblock.player.connection.PlayerJoinQuitHandler;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import static de.felixstaude.oneblock.player.connection.PlayerJoinQuitHandler.blockLocation;
 
 public class BarrierManager {
-    // Creates a barrier box around a specified player's location
+    // Creates a barrier box around a specified player's location with walls on the North, East, and West sides
     public void createBarrierBox(Player player) {
+
+        // Retrieve the central block location for the player
         Location center = blockLocation.get(player.getUniqueId());
+        if (center == null) return; // If no location is found, exit the method
 
-        if (center == null) return;
-
+        // Define the coordinates for the barrier
         int xCenter = center.getBlockX();
-        int yMin = -63;
-        int yMax = 300;
+        int yMin = -63; // Starting from y = -63
+        int yMax = 300; // Up to y = 300
         int zCenter = center.getBlockZ();
 
-        int xMin = xCenter - 5;
-        int xMax = xCenter + 5;
+        int xMin = xCenter - 5; // Five blocks to the west
+        int xMax = xCenter + 5; // Five blocks to the east
+        int zMin = zCenter - 3; // Three blocks to the north
+        int zMax = zCenter + 100; // One hundred blocks to the south, but we won't place barriers here
 
-        int zMin = zCenter - 3;
-        int zMax = zCenter + 100;
-
-        // Loop through each coordinate and set barriers on the boundary blocks
+        // Loop through each coordinate within the defined boundaries
         for (int x = xMin; x <= xMax; x++) {
             for (int z = zMin; z <= zMax; z++) {
                 for (int y = yMin; y <= yMax; y++) {
-                    if (x == xMin || x == xMax || z == zMin || z == zMax) {
+                    // Check if the current position is at the boundary (North, East, or West sides)
+                    if (x == xMin || x == xMax || z == zMin) { // No barrier on the south side (zMax)
+                        // Creates a new location for the barrier block
                         Location loc = new Location(center.getWorld(), x, y, z);
+                        // Set the block at the new location to a barrier
                         loc.getBlock().setType(Material.BARRIER);
                     }
                 }
@@ -73,27 +79,37 @@ public class BarrierManager {
         }
     }
 
-
+    // Extend the barrier box at the East and West sides for a given player
+    // block counter is used to get the Z coordinate of the last placed block
     public void extendBarrierBox(Player player) {
+        // Retrieve the central block location for the player
         Location centerBlockLoc = blockLocation.get(player.getUniqueId());
-        World world = centerBlockLoc.getWorld();
+        if (centerBlockLoc == null) return; // If no location is found, exit the method
 
-        Location lastPlacedBlock = PlayerJoinQuitHandler.getBlockLocation(player.getUniqueId());
-        // around this block, the barrier will be expanded
-        Location center = new Location(world, centerBlockLoc.getBlockX(), centerBlockLoc.getBlockY(), lastPlacedBlock.getBlockZ());
-        if (center == null) return;
+        // Retrieve the player's block count from the BlockCounter class
+        BlockCounter blockCounter = new BlockCounter();
+        int playerBlockCount = blockCounter.getBlockCount(player);
 
-        int zMax = center.getBlockZ() + 101;
-        int xMin = center.getBlockX() - 5;
-        int xMax = center.getBlockX() + 5;
-        int yMin = -63;
-        int yMax = 300;
+        // Create a new location, taking X and Y from centerBlockLoc and Z from the block count
+        Location center = new Location(centerBlockLoc.getWorld(), centerBlockLoc.getBlockX(), centerBlockLoc.getBlockY(), playerBlockCount);
 
-        for (int x = xMin; x <= xMax; x++) {
-            for (int y = yMin; y <= yMax; y++) {
-                Location loc = new Location(center.getWorld(), x, y, zMax);
-                loc.getBlock().setType(Material.BARRIER);
-            }
+        // Define the coordinates for the barrier extension
+        int zMax = playerBlockCount + 100; // Extend 100 blocks to the south
+        int xMin = center.getBlockX() - 5; // Five blocks to the west
+        int xMax = center.getBlockX() + 5; // Five blocks to the east
+        int yMin = -63; // Starting from y = -63
+        int yMax = 300; // Up to y = 300
+
+        // Place barriers at the East and West sides
+        for (int y = yMin; y <= yMax; y++) {
+            // Create locations for the East and West sides
+            Location locWest = new Location(center.getWorld(), xMin, y, zMax);
+            Location locEast = new Location(center.getWorld(), xMax, y, zMax);
+
+            // Set the barrier blocks at the new locations
+            locWest.getBlock().setType(Material.BARRIER);
+            locEast.getBlock().setType(Material.BARRIER);
         }
     }
+
 }

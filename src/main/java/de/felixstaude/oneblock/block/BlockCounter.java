@@ -25,7 +25,7 @@ public class BlockCounter implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        // Ignore cancelled events and non-gameplay states and cancel the block place event
+        // Ignore canceled events and non-gameplay states and cancel the block place event
         if(event.isCancelled() || !GameManager.isState(GameState.IN_GAME)){
             if(!event.getPlayer().isOp()){
                 event.setCancelled(true);
@@ -44,16 +44,19 @@ public class BlockCounter implements Listener {
         if(southernmostBlock == null || placedBlock.getZ() > southernmostBlock.getZ()) {
             southernmostBlocks.put(playerId, placedBlock);
             playerCounters.put(playerId, playerCounters.getOrDefault(playerId, 0) + 1);
+            barrierManager.extendBarrierBox(event.getPlayer());
             new Scoreboard().updateScoreboard();
             return;
         }
 
-        // If block is placed to the south of the current southernmost block and on the same X coordinate, increment the score.
+        // If a block is placed to the south of the current southernmost block and on the same X coordinate,
+        // increment the score.
         if(placedBlock.getZ() == southernmostBlock.getZ() + 1 && placedBlock.getX() == southernmostBlock.getX()) {
             playerCounters.put(playerId, playerCounters.getOrDefault(playerId, 0) + 1);
+            barrierManager.extendBarrierBox(event.getPlayer());
         }
-        new Scoreboard().updateScoreboard();
         barrierManager.extendBarrierBox(event.getPlayer());
+        new Scoreboard().updateScoreboard();
     }
 
     public Integer getBlockCount(Player player) {
