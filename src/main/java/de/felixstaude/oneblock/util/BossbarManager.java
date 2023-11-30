@@ -26,7 +26,7 @@ public class BossbarManager {
         if (timeLeftInSeconds > 0) {
             timeLeftInSeconds--;
             double progress = (double) timeLeftInSeconds / maxTimeInSeconds;
-            bossBar.setProgress(progress); // aktualisiert den Fortschritt der BossBar
+            bossBar.setProgress(progress);
         }
     }
 

@@ -4,6 +4,7 @@ import de.felixstaude.oneblock.main.OneBlock_Main;
 import de.felixstaude.oneblock.util.BossbarManager;
 import de.felixstaude.oneblock.util.MessageManager;
 import de.felixstaude.oneblock.util.RandomItemGenerator;
+import de.felixstaude.oneblock.util.files.ConfigFileManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -21,9 +22,10 @@ public class GameManager{
     }
     private static int countStartGame;
     private static int countInGame;
-    private static int dropItemTimer = 30;
-    private static int startGameTimer = 30;
-    private static int gameTimer = 3600; // 3600 -> one hour game time
+    private static ConfigFileManager configFileManager = new ConfigFileManager();
+    private static int dropItemTimer = configFileManager.getIntegerConfig("DropItemTime");
+    private static int startGameTimer = configFileManager.getIntegerConfig("GameStartTime");
+    private static int gameTimer = configFileManager.getIntegerConfig("GameTime");
     private static boolean cancelStartGame = false;
     private static boolean isGameCanceled = false;
     private static GameState currentState = GameState.LOBBY;
@@ -37,7 +39,9 @@ public class GameManager{
     // drop a random item every x seconds
     // start the game and after the timer ends determine the winner
     public static void setInGameState(){
+        bossbarManager = new BossbarManager("Item Dropping", dropItemTimer);
         messageManager.sendMessage("Das Spiel startet!");
+        messageManager.sendMessage("GameTimer: " + gameTimer);
         setCurrentState(GameState.IN_GAME);
         taskInGame = new BukkitRunnable(){
             @Override
@@ -75,8 +79,6 @@ public class GameManager{
     // start the game after countdown
     private BossbarManager bossBarManager;
     public static void startGame(){
-
-        bossbarManager = new BossbarManager("Item Dropping", dropItemTimer);
         setCurrentState(GameState.START_GAME);
         taskStartGame = new BukkitRunnable() {
             @Override

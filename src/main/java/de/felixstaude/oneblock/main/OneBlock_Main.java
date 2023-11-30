@@ -6,15 +6,19 @@ import de.felixstaude.oneblock.gamemanager.GameManager;
 import de.felixstaude.oneblock.block.barrier.PlaceBarrierBlockHandler;
 import de.felixstaude.oneblock.player.connection.PlayerJoinQuitHandler;
 import de.felixstaude.oneblock.player.connection.PlayerLoginHandler;
+import de.felixstaude.oneblock.util.files.ConfigFileManager;
 import de.felixstaude.oneblock.world.WorldManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
 public final class OneBlock_Main extends JavaPlugin {
+        ConfigFileManager configFileManager = new ConfigFileManager();
 
         @Override
     public void onEnable() {
         new WorldManager(this).initializeWorld();
+
+        configFileManager.setDefaults();
 
         getServer().getPluginManager().registerEvents(new PlayerJoinQuitHandler(), this);
         getServer().getPluginManager().registerEvents(new PlayerLoginHandler(), this);
@@ -25,6 +29,7 @@ public final class OneBlock_Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CreatureSpawn(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeath(), this);
         getServer().getPluginManager().registerEvents(new PlayerRespawn(), this);
+        getServer().getPluginManager().registerEvents(new PlaceBarrierBlockHandler(), this);
 
         GameManager.setLobbyState();
     }

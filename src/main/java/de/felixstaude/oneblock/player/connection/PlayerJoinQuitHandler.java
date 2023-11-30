@@ -4,9 +4,12 @@ import de.felixstaude.oneblock.gamemanager.GameManager;
 import de.felixstaude.oneblock.gamemanager.GameState;
 import de.felixstaude.oneblock.block.barrier.BarrierManager;
 import de.felixstaude.oneblock.main.OneBlock_Main;
+import de.felixstaude.oneblock.util.BossbarManager;
+import de.felixstaude.oneblock.util.files.ConfigFileManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.boss.BossBar;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -17,7 +20,8 @@ import java.util.UUID;
 
 public class PlayerJoinQuitHandler implements Listener {
 
-    private final int requiredPlayers = 3;
+    private ConfigFileManager configFileManager = new ConfigFileManager();
+    private final int requiredPlayers = configFileManager.getIntegerConfig("RequiredPlayers");
     public static final LinkedHashMap<UUID, Location> blockLocation = new LinkedHashMap<UUID, Location>();
 
     @EventHandler
@@ -30,6 +34,7 @@ public class PlayerJoinQuitHandler implements Listener {
             }
             setBlock(uuid, true);
         }
+
         new BarrierManager().createBarrierBox(event.getPlayer());
         Location teleportLoc = getBlockLocation(uuid).clone().add(0.5, 1, 0.5);
         event.getPlayer().teleport(teleportLoc);
@@ -43,6 +48,7 @@ public class PlayerJoinQuitHandler implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event){
         UUID uuid = event.getPlayer().getUniqueId();
+
         if(GameManager.isState(GameState.LOBBY) || GameManager.isState(GameState.START_GAME)){
             if(blockLocation.containsKey(uuid)){
                 setBlock(uuid, false);
